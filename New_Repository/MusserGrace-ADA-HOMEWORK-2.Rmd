@@ -1,0 +1,299 @@
+---
+title: "Musser_Grace-ADA-HOMEWORK-02"
+author: "Grace Musser"
+date: "2/26/2019"
+output: html_document
+---
+Poisson--use for independently occuring, discrete random variables over intervals. eg DNA mutation accumulation model
+
+Question 1
+
+```{r}
+interval<-2
+session_hour_total<-14
+l<-15 #set lambda to 15 as it is the mean number of occurances per interval
+```
+
+1a. 
+```{r}
+x<-8 #x is 8 calls
+prob1<-ppois(x,lambda=l,lower.tail=FALSE) #P[X>x]
+prob1
+```
+
+1b.
+```{r}
+x<-0 #x is no calls
+prob2<-dpois(x,l) #P[X=x]
+prob2
+```
+
+
+1c.
+```{r}
+x<-3 #x is 3 calls
+prob3<-dpois(x,l) #P[X=x]
+prob3
+```
+
+1d.
+```{r}
+x<-0:30 #set range of x
+prob4<-dpois(x=x, lambda=(15)) #use the poisson dist., lambda is 15
+barplot(prob4, names.arg = x, space = 0, xlab = "x", ylab = "Pr(X = x)", main = paste0("Probability Mass Function\nlambda = ", 
+    l)) #all of this code plots the histogram
+```
+
+1e/1f. It is different from the one plotted above as the distribution is not normal and the results are not as predictable.
+```{r}
+seed<-rpois(104, 15) #simulate poisson distribution
+manipulate(hist(seed, main = paste("Histogram of Simulated Calls", sep = ""), xlab = "calls", xlim=c(0,30), ylab = "time", n = slider(0, 
+    30, initial = 1, step = 1 ))) #all of this codes relates to histogram that can be manipulated using manipulate package
+```
+
+
+
+
+
+
+Question 2
+
+2a.
+```{r}
+library(curl) #read in data frame after loading curl package
+f <- f <- curl("https://raw.githubusercontent.com/difiore/ADA-2019/master/zombies.csv")
+d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+head(d)
+```
+```{r}
+n<-1000 #n is a thousand people
+
+#function to calculate pop st dev
+sd.p=function(x){
+  sd(x)*sqrt((length(x)-1)/length(x))
+  }
+
+mean_height<- mean(d$height) #get population means of all variables
+x<-d$height
+s<-sd.p(x) #get standard dev of population for all variables
+mean_height
+s
+
+mean_weight<- mean(d$weight)
+x<-d$weight
+s<-sd.p(x)
+mean_weight
+s
+
+mean_age<- mean(d$age)
+x<-d$age
+s<-sd.p(x)
+mean_age
+s
+
+mean_z<- mean(d$zombies_killed)
+x<-d$zombies_killed
+s<-sd.p(x)
+mean_z
+s
+
+mean_edu<- mean(d$years_of_education)
+x<-d$years_of_education
+s<-sd.p(x)
+mean_edu
+s
+
+```
+
+2b.
+```{r}
+library(ggplot2) #load ggplot
+
+```
+```{r}
+#plot gender by height
+height_boxplot <- ggplot(d, aes(x=d$gender, y=d$height)) + 
+  geom_boxplot()
+height_boxplot
+```
+
+```{r}
+#plot gender by weight
+weight_boxplot <- ggplot(d, aes(x=d$gender, y=d$weight)) + 
+  geom_boxplot()
+weight_boxplot
+```
+
+```{r}
+#plot gender by age
+age_boxplot <- ggplot(d, aes(x=d$gender, y=d$age)) + 
+  geom_boxplot()
+age_boxplot
+```
+
+```{r}
+#plot gender by zombies killed
+z_boxplot <- ggplot(d, aes(x=d$gender, y=d$zombies_killed)) + 
+  geom_boxplot()
+z_boxplot
+```
+
+```{r}
+#plot gender by years of education
+edu_boxplot <- ggplot(d, aes(x=d$gender, y=d$years_of_education)) + 
+  geom_boxplot()
+edu_boxplot
+```
+
+2c.
+```{r}
+par(mfrow=c(1,2)) #change available plot spcae
+ggplot(d, aes(x=d$age, y=c(d$weight))) + geom_point() #create a scatterplot
+ggplot(d, aes(x=d$age, y=c(d$height))) + geom_point()
+```
+
+2d. Age and height appear normally distributed, whereas years of education and the number of zombies killed are not and appear to be drawn from a Poisson distribution.
+```{r}
+hist(d$age) #histogram
+qqnorm(d$age) #qqplot
+hist(d$height)
+qqnorm(d$height)
+hist(d$zombies_killed)
+qqnorm(d$zombies_killed)
+hist(d$years_of_education)
+qqnorm(d$years_of_education)
+
+```
+
+2e. 
+```{r}
+
+#sample from the old dataframe (1 iteration, 30 total) to create new dataframe, do not use replacement
+mysample <-d[sample(1:nrow(d), 30,
+   replace=FALSE),]
+
+mysample
+
+#calculate sample mean, sample st dev, sample error and confidence intervals for height:
+sample_mean<-mean(mysample$height)
+sample_mean
+sample_SD<-sd(mysample$height)
+sample_SD
+sem<-sample_SD/sqrt(length(mysample$height))
+sem
+confidence<-c(mean(x)-2*sem,mean(x)+2*sem)
+confidence
+
+#do the same for the other variables...
+sample_mean<-mean(mysample$weight)
+sample_mean
+sample_SD<-sd(mysample$weight)
+sample_SD
+sem<-sample_SD/sqrt(length(mysample$weight))
+sem
+confidence<-c(mean(x)-2*sem,mean(x)+2*sem)
+confidence
+
+sample_mean<-mean(mysample$age)
+sample_mean
+sample_SD<-sd(mysample$age)
+sample_SD
+sem<-sample_SD/sqrt(length(mysample$age))
+sem
+confidence<-c(mean(x)-2*sem,mean(x)+2*sem)
+confidence
+
+sample_mean<-mean(mysample$zombies_killed)
+sample_mean
+sample_SD<-sd(mysample$zombies_killed)
+sample_SD
+sem<-sample_SD/sqrt(length(mysample$zombies_killed))
+sem
+confidence<-c(mean(x)-2*sem,mean(x)+2*sem)
+confidence
+
+sample_mean<-mean(mysample$years_of_education)
+sample_mean
+sample_SD<-sd(mysample$years_of_education)
+sample_SD
+sem<-sample_SD/sqrt(length(mysample$years_of_education))
+sem
+confidence<-c(mean(x)-2*sem,mean(x)+2*sem)
+confidence
+
+
+```
+
+
+
+
+```{r}
+#check histograms of each variable sampled
+hist(mysample$height)
+hist(mysample$weight)
+hist(mysample$age)
+hist(mysample$zombies_killed)
+hist(mysample$years_of_education)
+```
+
+2f. Height, weight and age appear normally distributed but zombies killed and years of education do not. The latter two appear to bedrawn from a Poisson distribution. The standard error appears smaller in 2f in general.
+```{r}
+#do the same thing with 99 iterations...
+mysample2 <-d[sample(99:nrow(d), 30,
+   replace=FALSE),]
+mysample2
+
+sample_mean<-mean(mysample2$height)
+sample_mean
+sample_SD<-sd(mysample2$height)
+sample_SD
+sem<-sample_SD/sqrt(length(mysample2$height))
+sem
+confidence<-c(mean(x)-2*sem,mean(x)+2*sem)
+confidence
+
+sample_mean<-mean(mysample2$weight)
+sample_mean
+sample_SD<-sd(mysample2$weight)
+sample_SD
+sem<-sample_SD/sqrt(length(mysample$weight))
+sem
+confidence<-c(mean(x)-2*sem,mean(x)+2*sem)
+confidence
+
+sample_mean<-mean(mysample2$age)
+sample_mean
+sample_SD<-sd(mysample2$age)
+sample_SD
+sem<-sample_SD/sqrt(length(mysample$age))
+sem
+confidence<-c(mean(x)-2*sem,mean(x)+2*sem)
+confidence
+
+sample_mean<-mean(mysample2$zombies_killed)
+sample_mean
+sample_SD<-sd(mysample2$zombies_killed)
+sample_SD
+sem<-sample_SD/sqrt(length(mysample$zombies_killed))
+sem
+confidence<-c(mean(x)-2*sem,mean(x)+2*sem)
+confidence
+
+sample_mean<-mean(mysample2$years_of_education)
+sample_mean
+sample_SD<-sd(mysample2$years_of_education)
+sample_SD
+sem<-sample_SD/sqrt(length(mysample$years_of_education))
+sem
+confidence<-c(mean(x)-2*sem,mean(x)+2*sem)
+confidence
+```
+
+```{r}
+hist(mysample2$height)
+hist(mysample2$weight)
+hist(mysample2$age)
+hist(mysample2$zombies_killed)
+hist(mysample2$years_of_education)
+```
+

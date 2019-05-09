@@ -1,0 +1,232 @@
+---
+title: "Vignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{AncBAMM Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "img/",
+	fig.align = "center"
+)
+```
+
+#Downstream Phylogenetic Analysis in R with the AncBAMM Package
+
+Grace Musser and Erin Keenan Early
+May 7, 2019
+
+## Ancestral State Reconstruction and BAMM
+
+#Preliminary Analyses
+
+##Phylogenetic data matrix creation
+Here, we used a combination of 13 nuclear and mitochondrial genes for avian taxa.  
+
+##Bayesian analysis
+
+###Bayesian analysis overview
+
+###Models of evolution
+We ran the phylogenetic analyses using Bayesian methods using MrBayes on TACC. We ran the analysis using the GTR (Generalised time reversible) model with gamma-distributed rate variation across sites. If we did not include the gamma model, it would be assumed that all sites are evolving at equal rates. The GTR model is most often used in current phylogenetic studies as it is the most complex model currently available for molecular evolution. It comprises 64 nested models with various combinations of parameters for DNA site substitution and has the highest degrees of freedom out of all previously published models of molecular evolution.
+
+#Downstream analyses in R
+
+##Tree extraction 
+
+###First, load our AncBAMM package, which draws on functions from several phylogenetic-based packages along with a Game of Thrones color scheme. Say "yes" to installing any dependencies.
+```{r setup}
+library(AncBAMM)
+```
+
+Grab most of the data here (we will load in body mass later as it is included with the package): 
+
+Posterior tree set:
+```{r}
+posteriors <- AncBAMM::curl("https://raw.githubusercontent.com/gmusser553/ADA_Final_Project/master/posterior_tree_set.nex")
+```
+
+BAMM mcmcout file:
+```{r}
+f <- AncBAMM::curl("https://raw.githubusercontent.com/gmusser553/ADA_Final_Project/master/mcmc_out.txt")
+mcmcout <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = TRUE)
+head(mcmcout)
+```
+
+Newick Tree Output:
+```{r}
+my_Newick_tree<-AncBAMM::curl("https://raw.githubusercontent.com/gmusser553/ADA_Final_Project/master/MyNewickTreefile.tre")
+```
+
+Event data from BAMM:
+```{r}
+f<-AncBAMM::curl("https://raw.githubusercontent.com/gmusser553/ADA_Final_Project/master/sevent_data.txt")
+sevent <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = TRUE)
+head(sevent)
+```
+
+Extract a tree from a posterior tree set (in this case it is in nexus format). Then assign a tree from this posterior tree set to a variable. In this case we picked tree 42:
+```{r}
+grui.tree<-AncBAMM::read.nexus(file=posteriors) 
+
+subsettree<-grui.tree[[42]]
+
+```
+
+Plot the exracted tree in a fan style to check that this worked:
+```{r}
+AncBAMM::plotTree(subsettree,type="fan",ftype="i", color=gameofthrones::got(150, option = "Targaryen2"), fsize=0.3)
+```
+
+##Ancestral State Reconstruction
+
+Here, we read in body mass data and drop names that do not match. We also take the log of the mean body mass data so that it will be easier to visalize after performing ancestral state reconstruction and plotting it on the tree.
+
+```{r}
+f <- AncBAMM::curl("https://raw.githubusercontent.com/gmusser553/ADA_Final_Project/master/ONLYGruiBodyMassData.csv")
+GRUIMassData <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = TRUE)
+head(GRUIMassData)
+```
+
+##Ancestral State Reconstruction
+
+Load the body mass data included in the AncBAMM package:
+```{r}
+data("GRUIMassData")
+```
+
+```{r}
+#load(file = "/Users/gracemusser/Desktop/R\ Development/Depos/Spring2019/AncBAMM/data/GRUIMassData.rda")
+```
+
+Here, we read in body mass data and drop names that do not match. We also take the log of the mean body mass data so that it will be easier to visalize after performing ancestral state reconstruction and plotting it on the tree.
+
+```{r}
+meanmass<-GRUIMassData$LogMean
+
+names(meanmass)<-GRUIMassData$`Species Name`
+xxx <- na.omit(meanmass)
+
+v <- subsettree$tip.label %in% names(xxx)
+drop <- subsettree$tip.label[v==FALSE]
+d2<-ape::drop.tip(subsettree, drop)
+```
+
+Perform ancestral state reconstruction using fastAnc:
+
+```{r}
+fit<-phytools::fastAnc(tree=d2, xxx, vars=TRUE, CI=TRUE)
+fit
+```
+
+Use contMap to create a tree with the ancestral state reconstructions plotted onto it. We assign it to a variable here, but you can also use it alone to create a tree image. 
+
+contMap takes the tree as argument x, the continuous traits to be input and from which ancestral state reconstruction can be estimated, and has several additional options that can be employed. 
+
+Here, we decrease line width for branches since we have large taxon sampling (lwd) and increase resolution of the ancestral state reconstruction (res). fsize can be used in plot or contMap and determines font size.
+
+```{r}
+obj<-phytools::contMap(d2,xxx,plot=FALSE, res=1000, lwd=.5)
+```
+
+The setMap function allows us to change the color palette of the tree.
+
+```{r}
+obj<-phytools::setMap(obj, colors=gameofthrones::got(128, option = "Daenerys"))
+```
+
+```{r}
+plot(obj, fsize=.2)
+```
+
+
+We can also plot it in a fan style. Fan styles are typically used for datasets with large taxon sampling.
+
+```{r}
+obj<-phytools::setMap(obj, colors=gameofthrones::got(256, option = "Targaryen2"))
+
+plot(obj,type="fan",legend=0.7*max(phytools::nodeHeights(d2)),
+     fsize=.2)
+```
+
+We can also plot a phenogram. A phenogram depicts taxonomic relationships based on overall similarity of character states without takiing evolutionary history or weighting/ordering of characters. 
+
+```{r}
+phytools::phenogram(d2,xxx,fsize=0.2,spread.costs=c(1,0))
+```
+
+##BAMM analyses and plotting in R:
+
+```{r}
+#first use BAMM in terminal-must be Newick notation
+#check that tree is ultrametric and all tree lengths are greater than 0:
+ape::is.ultrametric(d2) #check if ultrametric
+min(d2$edge.length) #check minimum branch length
+
+#After running BAMM, load mcmc_out.txt or equivalent file into R to test convergence using 'coda' package:
+#mcmcout <- read.csv("mcmc_out.txt", header=T)
+plot(mcmcout$logLik ~ mcmcout$generation)
+
+#next: discard burnin
+burnstart <- floor(0.1 * nrow(mcmcout))
+postburn <- mcmcout[burnstart:nrow(mcmcout), ]
+
+#check the effective sample sizes of the log-likelihood and the number of shift events present in each 
+#you want this to be at least 200
+#effectiveSize(postburn$N_shifts)
+#effectiveSize(postburn$logLik)
+
+#tree <- read.tree("MyNewickTreefile.tre")
+tree<-ape::read.tree(my_Newick_tree)
+edata <- BAMMtools::getEventData(tree, eventdata = sevent, burnin=0.1)
+
+shift_probs <- summary(edata) #create dataframe of posterior probabilities
+#visualizing mean, model-averaged diversification rates at any point along every branch of a phylogenetic tree:
+BAMMtools::plot.bammdata(edata, lwd=2, legend=T)
+
+index <- 25
+e2 <- BAMMtools::subsetEventData(edata, index = index)
+BAMMtools::plot.bammdata(e2, lwd=2, legend=TRUE)
+BAMMtools::addBAMMshifts(e2, cex=2)
+```
+
+Use this to see the rate through time:
+
+```{r}
+BAMMtools::plotRateThroughTime(edata)
+```
+
+
+Phylogenetically informed correlation of BAMM rates and body mass
+
+```{r}
+D.scores <- GRUIMassData$LogMean
+names(D.scores) <- GRUIMassData$`Species Name`
+
+is.D.scores.in.edata <- names(D.scores) %in% edata$tip.label
+  
+D.scores.trim <- D.scores[is.D.scores.in.edata==TRUE]
+
+  is.edata.in.D.scores <- edata$tip.label %in% names(D.scores.trim)
+
+  keep <- edata$tip.label[is.edata.in.D.scores == TRUE]
+  
+  edata.subset <- BAMMtools::subtreeBAMM(edata, tips=keep)
+  
+ cor.result <- BAMMtools::traitDependentBAMM(edata.subset, traits=D.scores.trim,
+                                     reps=1000, return.full = TRUE,
+                                    method="s",logrates = TRUE,
+                                    two.tailed = TRUE)
+ 
+ #correlation
+hist(cor.result$estimate, xlim=c(-1,1))
+hist(cor.result$obs.corr, xlim=c(-1,1))
+cor.result$estimate
+cor.result$p.value
+```
+

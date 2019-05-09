@@ -1,0 +1,71 @@
+---
+title: "Markdown"
+author: "Grace Musser"
+date: "1/31/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+x<-1:10
+meanx<-mean(x)
+print(meanx)
+
+f<-function(x){
+  return(mean(x))
+}
+y<-f(x)
+print(y)
+```
+
+```{python}
+list1=[1,2,3]
+print(list1)
+```
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+```{r}
+#dialog box will come up so u can easily navigate to file
+f<-file.choose()
+
+#if you are having trouble w data in R, double check that it is the rihgt kind of data eg numeric, boolean, etc
+```
+
+Week 9
+
+```{r}
+f <- curl("https://raw.githubusercontent.com/difiore/ADA-2019/master/Country-Data-2016.csv")
+d <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = FALSE)
+d <- as_tibble(d)  # I like tibbles!
+head(d)
+
+library(skimr)
+library(kableExtra)
+s <- skim(d)  # the main `skimr()` function
+s <- skim_to_wide(d)  # formats results to a wide table
+s %>% select(-type, -n, -n_unique, -empty) %>% kable() %>% kable_styling(font_size = 10)
+
+#can do :
+kable(s)
+```
+

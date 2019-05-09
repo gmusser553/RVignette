@@ -1,0 +1,50 @@
+---
+title: "Vignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{AncBAMM Vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(AncBAMM)
+```
+
+```{r}
+posteriors <- curl::curl("https://raw.githubusercontent.com/gmusser553/ADA_Final_Project/master/posterior_tree_set.nex")
+```
+
+```{r}
+f <- curl::curl("https://raw.githubusercontent.com/gmusser553/ADA_Final_Project/master/mcmc_out.txt")
+mcmcout <- read.csv(f, header = TRUE, sep = ",", stringsAsFactors = TRUE)
+head(mcmcout)
+```
+
+```{r}
+my_Newick_tree<-curl::curl("https://raw.githubusercontent.com/gmusser553/ADA_Final_Project/master/MyNewickTreefile.tre")
+```
+
+```{r}
+sevent<-curl::curl("https://raw.githubusercontent.com/gmusser553/ADA_Final_Project/master/sevent_data.txt")
+```
+
+
+```{r}
+grui.tree<-ape::read.nexus(file=posteriors) 
+
+subsettree<-grui.tree[[42]]
+
+```
+
+
+```{r}
+phytools::plotTree(subsettree,type="fan",ftype="i", color=gameofthrones::got(150, option = "Targaryen2"), fsize=0.3)
+```

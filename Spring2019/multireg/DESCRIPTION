@@ -1,0 +1,22 @@
+Package: multireg
+Title: A module for demonstrating multiple regression and ANCOVA
+Version: 0.0.1.0
+Authors@R: 
+    person(given = "Anthony",
+           family = "Di Fiore",
+           role = c("aut", "cre"),
+           email = "anthony.difiore@austin.utexas.edu",
+           comment = c(ORCID = "YOUR-ORCID-ID"))
+Description: This module is used to demonstrate building a package that contains a vignette about running multiple regression using an included dataset.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    car,
+    ggplot2,
+    gridExtra
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 6.1.1

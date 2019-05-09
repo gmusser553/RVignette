@@ -1,0 +1,144 @@
+---
+title: "MUSSER-GRACE-HOMEWORK-01"
+author: "Grace Musser"
+date: "2/5/2019"
+output: html_document
+---
+
+Module 7 Challenges 
+
+CHALLENGE:
+First, create a vector of 1 word character strings comprising the first line of the Gettysburg address: “Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.”
+Then, extract every third element of this vector.
+
+HINT 1: Take a look at the {stringr} package and the function str_split() to see if you can easily divide a single string into a vector of substrings.
+HINT 2: If you’re ambitious, the following function, gsub("[[:punct:]]","",*string*), applied to *string*, will remove punction and special characters from that string.
+
+```{r}
+Lincoln<-c("Four score and seven years ago our fathers brought forth on this continent, a new nation, conceived in Liberty, and dedicated to the proposition that all men are created equal.")
+
+Lincoln_split<-c(str_split(Lincoln, " ", simplify = TRUE))
+Lincoln2<-Lincoln_split[seq(from =1, to=30, by =3)]
+print(Lincoln2)
+no_punct<-gsub(("[[:punct:]]"), "", Lincoln)
+print(no_punct)
+```
+
+CHALLENGE:
+Given the matrix, m, above, extract the 2nd, 3rd, and 6th columns and assign them to the variable x
+Given the matrix, m, above, extract the 6th to 8th row and assign them to the variable x
+Given the matrix, m, above, extract the elements from row 2, column 2 to row 6, column 9 and assign them to the variable x
+
+```{r}
+m <- matrix(data = 1:80, nrow = 8, ncol = 10, byrow = FALSE)
+print(m)
+x <- m[6:8, ]
+print(x)
+x<-m[2:6,2:9]
+print(x)
+```
+
+CHALLENGE:
+Construct a 4-dimensional, 400 element array (5 x 5 x 4 x 4) named a consisting of the numbers 400 to 1 (i.e., a descending series)
+Given this matrix, what would the following return?
+
+a[1, 1, 1, 2]
+a[2, 3, 2, ]
+a[1:5, 1:5, 3, 3]
+
+```{r}
+a<-array(data = 400:1, dim=c(5,5,4,4))
+print(a)
+```
+
+```{r}
+a[1, 1, 1, 2]
+```
+
+```{r}
+a[2, 3, 2, ]
+```
+
+```{r}
+a[1:5, 1:5, 3, 3]
+```
+
+
+CHALLENGE:
+Create a list representing the (simplified) primate taxonomy outlined below. HINT: you can use lists as elements in a list.
+
+
+```{r}
+
+```
+
+
+
+```{r}
+Suborders <- list('Haplorhini' , 'Strepsirhini')
+Lsuborders <- list('Anthropoidea', 'Tarsioidea', 'Lorisoidea', 'Lemuroidea')
+LLsuborders <- list('Platyrrhihni', 'Catarrhihni')
+Plat_fam<-list('Cebidae', 'Atelidae', 'Pitheciidae')
+Cat_fam<-list('Cercopithecidae', 'Hylobatidae', 'Hominidae')
+Tars_fam<-list('Tarsiidae')
+Loris_fam<-list('Lorisidae', 'Galagidae')
+Lemur_fam<-list('Cheirogaleidae', 'Lepilemuridae', 'Indriidae', 'Lemuridae', 'Daubentoniidae')
+
+Platyrrhini<-list(LLsuborders[[1]], list(Plat_fam))
+Catarrhini<-list(LLsuborders[[2]], list(Cat_fam))
+Anthropoidea<-list(Lsuborders[[1]], Catarrhini, Platyrrhini)
+Tarsoidea<-list(Lsuborders[[2]], Tars_fam)
+Haplorhini<-list(Anthropoidea, Tarsoidea)
+
+
+Lorisoidea<-list(Lsuborders[[3]], list(Loris_fam))
+Lemuroidea<-list(Lsuborders[[4]], list(Lemur_fam))
+Strepsirhini<-list(Lorisoidea, Lemuroidea)
+
+Primates<-list(Haplorhini, Strepsirhini)
+Primates
+
+```
+
+
+CHALLENGE:
+Store the following numbers as a 5 x 3 matrix: 3, 0, 1 ,23, 1, 2, 33, 1, 1, 42, 0, 1, 41, 0, 2. Be sure to fill the matrix ROWWISE.
+
+```{r}
+m <- matrix(data = c(3, 0, 1, 23, 1, 2, 33, 1, 1, 42, 0, 1, 41, 0, 2), nrow = 5, ncol = 3, byrow = TRUE)
+m
+```
+
+
+Then, do the following:
+Coerce the matrix to a data frame.
+
+```{r}
+df <- data.frame(m)
+df
+```
+
+As a data frame, coerce the second column to be logical-valued (Boolean)
+```{r}
+df$X2 <- as.logical(df$X2)
+df
+class(df$X2)
+```
+
+
+As a data frame, coerce the third column to be factor-valued
+
+```{r}
+df$X3 <- as.factor(df$X3)
+df
+class(df$X3)
+```
+
+When you are done, use the str() command to show the data type for each variable in your dataframe.
+
+```{r}
+str(df)
+```
+
+
+
